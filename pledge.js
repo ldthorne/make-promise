@@ -9,7 +9,10 @@ function $Promise(){
 	this.state = "pending";
 	this.handlerGroups = [];
 	this.value;
-	this.then = function(successCb, errorCb){
+}
+
+
+$Promise.prototype.then = function(successCb, errorCb){
 		if(typeof successCb !== "function" && typeof errorCb !== "function"){
 			this.handlerGroups.push({
 				successCb: undefined,
@@ -25,7 +28,6 @@ function $Promise(){
 		}
 		this.callHandlers();
 		
-	}
 }
 $Promise.prototype.callHandlers = function(){
 	if(this.state==="pending"){
@@ -40,12 +42,17 @@ $Promise.prototype.callHandlers = function(){
 
 	while(this.handlerGroups.length){
 		var group = this.handlerGroups.shift();
+		console.log(group)
 		if(this.state==="resolved"){
 			group.successCb(this.value)
-		}else if(this.state==="rejected"){
+		}else if(this.state==="rejected" && group.errorCb){
 			group.errorCb(this.value)
 		}
 	}
+}
+
+$Promise.prototype.catch = function(func){
+	this.then(null, func);
 }
 
 function Deferral(){
